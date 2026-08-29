@@ -1,0 +1,6 @@
+id,name,default_code,type,is_storable,categ_id/id,uom_id/id,uom_po_id/id,tracking,weight,volume,purchase_ok,sale_ok,list_price
+somgreen.prod_fg_tis_001,Carton - Toilet Tissue 2-ply 200s - 8 packs x 10 rolls,FG-TIS-001,consu,1,somgreen_mrp.categ_finished,uom.product_uom_unit,uom.product_uom_unit,none,6.5,0.240,0,1,0.00
+somgreen.prod_fg_tis_002,Carton - Toilet Tissue 2-ply 300s - 8 packs x 10 rolls,FG-TIS-002,consu,1,somgreen_mrp.categ_finished,uom.product_uom_unit,uom.product_uom_unit,none,9.3,0.310,0,1,0.00
+somgreen.prod_fg_tis_003,Carton - Facial Tissue 2-ply 150s - 30 boxes,FG-TIS-003,consu,1,somgreen_mrp.categ_finished,uom.product_uom_unit,uom.product_uom_unit,none,5.8,0.080,0,1,0.00
+somgreen.prod_fg_tis_004,Carton - Kitchen Towel 2-ply 60s - 12 packs x 2 rolls,FG-TIS-004,consu,1,somgreen_mrp.categ_finished,uom.product_uom_unit,uom.product_uom_unit,none,7.2,0.150,0,1,0.00
+somgreen.prod_fg_tis_005,Carton - Napkins 1-ply 100s - 40 packs,FG-TIS-005,consu,1,somgreen_mrp.categ_finished,uom.product_uom_unit,uom.product_uom_unit,none,4.4,0.070,0,1,0.00

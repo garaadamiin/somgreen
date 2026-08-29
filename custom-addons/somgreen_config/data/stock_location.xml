@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Internal locations for the trading warehouse.
+
+        PHASE 1 - TRADING. Production locations (RAW, PACK, WIP, FG) live in
+        `somgreen_mrp` and appear only when the factory starts. A trader needs
+        two subdivisions of Stock and no more; inventing a location per product
+        family creates transfers to record and buys nothing a category filter
+        does not already give.
+
+        ONE warehouse, subdivided - not several warehouses. Multi-warehouse in
+        Odoo buys inter-warehouse resupply routes, duplicated reordering rules
+        and a transfer for every internal movement. Add a second warehouse only
+        when there is a physically separate site with its own address, such as a
+        city depot.
+
+        Parent is stock.stock_location_stock, the default warehouse's Stock
+        location. Rename the warehouse itself in Inventory > Configuration >
+        Warehouses; that is a one-field edit and does not need to be codified.
+
+        Requires the "Storage Locations" setting to be enabled.
+    -->
+
+    <!--
+        Quarantine for imported goods awaiting inspection. This location plus the
+        two-step receipt route is the substitute for the Quality app, which is
+        Enterprise-only and shows as uninstallable on Community.
+
+        For an importer this is the location that earns its keep: a container is
+        counted against the packing list here, and a short or damaged shipment is
+        discovered while the claim window with the supplier and the insurer is
+        still open.
+    -->
+    <record id="location_qc" model="stock.location">
+        <field name="name">QC</field>
+        <field name="location_id" ref="stock.stock_location_stock"/>
+        <field name="usage">internal</field>
+        <field name="comment">Quarantine. Imported goods held here until counted against the packing list and checked. Nothing moves to saleable stock until it passes.</field>
+    </record>
+
+    <!--
+        Damaged goods, segregated but still owned and still valued.
+
+        Deliberately an INTERNAL location, not a scrap location: goods sitting
+        here are out of saleable stock but still on the balance sheet, which is
+        what you want while a claim against the supplier, the shipping line or
+        the insurer is open. Scrapping writes the value off immediately and
+        makes the claim harder to evidence. Scrap from here once the claim is
+        settled or abandoned.
+    -->
+    <record id="location_damaged" model="stock.location">
+        <field name="name">DAMAGED</field>
+        <field name="location_id" ref="stock.stock_location_stock"/>
+        <field name="usage">internal</field>
+        <field name="comment">Damaged or short-shipped goods, segregated from saleable stock while a supplier or insurance claim is open. Still valued. Scrap from here once the claim is settled.</field>
+    </record>
+
+</odoo>

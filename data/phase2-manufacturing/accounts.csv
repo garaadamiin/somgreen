@@ -1,0 +1,13 @@
+id,code,name,account_type,reconcile
+somgreen.acc_inv_raw,105200,Raw Material Inventory,asset_current,0
+somgreen.acc_inv_finished,105300,Finished Goods Inventory,asset_current,0
+somgreen.acc_inv_waste,105400,Waste and Rejects Inventory,asset_current,0
+somgreen.acc_production_cost,105600,Cost of Production,asset_current,1
+somgreen.acc_wip,105700,Work in Progress,asset_current,1
+somgreen.acc_sales_manufactured,401200,Sales - Manufactured Goods,income,0
+somgreen.acc_cogs_manufactured,501200,COGS - Manufactured Goods,expense_direct_cost,0
+somgreen.acc_factory_labour,503100,Factory Labour,expense_direct_cost,0
+somgreen.acc_factory_power,503200,Factory Power and Fuel,expense_direct_cost,0
+somgreen.acc_factory_consumables,503300,Factory Consumables and Maintenance,expense_direct_cost,0
+somgreen.acc_factory_depreciation,503400,Factory Depreciation,expense_direct_cost,0
+somgreen.acc_conversion_absorbed,503900,Conversion Cost Absorbed,expense_direct_cost,0

@@ -1,0 +1,63 @@
+[options]
+; ==========================================================================
+; SomGreen - Odoo 18.0 Community  (TEMPLATE)
+; Copy to config/odoo.conf and fill in the secrets. odoo.conf is gitignored.
+; ==========================================================================
+
+; Master password - can create, drop, backup and RESTORE any database on this
+; instance. Treat it as a root credential. Minimum 24 random characters.
+admin_passwd = YOUR_STRONG_MASTER_PASSWORD_HERE
+
+; Database configuration
+; NOTE: db_password here OVERRIDES the PASSWORD env var from docker-compose.
+; If you rotate it, rotate .env and the Postgres role together - see README.md.
+db_host = db
+db_port = 5432
+db_user = odoo
+db_password = YOUR_STRONG_DB_PASSWORD_HERE
+
+; Single production database. With exactly one database matching the filter,
+; Odoo selects it automatically and never shows a database picker.
+dbfilter = ^somgreen$
+
+; Blocks database enumeration AND disables the whole web database manager.
+;
+; The /web/database/manager and /web/database/selector routes still return 200,
+; but database_manager.qweb.html wraps its entire body in `t-if="list_db"`, so
+; the page renders nothing except "The database manager has been disabled by
+; the administrator" - no create, restore, backup or duplicate form. Verified
+; against Odoo 18 in web/static/src/public/database_manager.qweb.html:34.
+;
+; Consequence: databases must be created and restored from the CLI while this
+; is False. See SETUP.md step 2. Do not flip this to True to get the web form
+; back and then forget to flip it down again.
+list_db = False
+
+; Server configuration
+http_port = 8069
+; Websocket/longpolling worker. Required because workers > 0 below; must be
+; published in docker-compose.yml or live chatter degrades silently.
+gevent_port = 8072
+
+; Uncomment when a reverse proxy (nginx/Caddy) terminates TLS in front of Odoo
+; proxy_mode = True
+
+; Logging - ./logs is bind-mounted, so logs survive container recreation
+logfile = /var/log/odoo/odoo.log
+log_level = info
+
+; Performance
+workers = 2
+max_cron_threads = 1
+
+; Odoo's defaults kill long-running requests mid-transaction. Manufacturing
+; order computation and landed-cost recalculation over many moves both exceed
+; them on modest hardware.
+limit_time_cpu = 600
+limit_time_real = 1200
+
+; Addons path - includes accounting subfolder
+addons_path = /usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons,/mnt/extra-addons/accounting
+
+; Data directory
+data_dir = /var/lib/odoo

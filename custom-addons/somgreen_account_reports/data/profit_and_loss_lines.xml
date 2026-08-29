@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!--
+        The Profit and Loss, as structure rather than code.
+
+        Layout follows the Odoo Enterprise statement of performance:
+
+            PROFIT AND LOSS
+              INCOME
+                Gross Profit
+                  Operating Income
+                  Cost of Revenue
+                Other Income
+              EXPENSES
+                Operating Expenses
+                Depreciation
+              NET PROFIT
+
+        SIGN. Income accounts carry credit balances and expense accounts debit
+        balances, so a naive report prints one of the two as negative. Here the
+        reversal is declared once on INCOME, and once back to normal on Cost of
+        Revenue, which sits under INCOME but is an expense. Result: every line on
+        the statement prints as a positive number, the way an accountant reads
+        one, and the deduction happens in the structure instead:
+
+            Gross Profit = Operating Income - Cost of Revenue
+            NET PROFIT   = INCOME - EXPENSES
+
+        Those two are the `formula` field on a "Formula over other lines" line.
+        Operands are named by CODE rather than by ref(): Gross Profit is computed
+        from its own children, which do not exist yet when it is created, and in
+        a noupdate="1" file a second <record> for the same xmlid is silently
+        skipped - so a two-pass wiring cannot work here. Codes have no ordering
+        problem.
+
+        TRADING VERSUS MANUFACTURING. Lines group by account_type, so the
+        separate account codes the chart deliberately keeps apart - 401100 Sales
+        Merchandise against 401200 Sales Manufactured Goods, 501100 COGS
+        Merchandise against 501200 COGS Manufactured Goods - print as their own
+        rows under Operating Income and Cost of Revenue. The two businesses stay
+        readable without either one hiding behind the other. Nothing here needs
+        changing when Phase 2 starts.
+
+        noupdate="1": the accountant may rename or resequence these lines, and a
+        module upgrade must not undo that.
+    -->
+
+    <!-- ============================================================ ROOT -->
+
+    <record id="pl_root" model="somgreen.account.report.line">
+        <field name="name">PROFIT AND LOSS</field>
+        <field name="code">PL_ROOT</field>
+        <field name="report_key">profit_and_loss</field>
+        <field name="line_type">header</field>
+        <field name="sequence" eval="10"/>
+        <field name="hide_if_zero" eval="False"/>
+        <field name="sign">1</field>
+    </record>
+
+    <!-- ========================================================== INCOME -->
+
+    <record id="pl_income" model="somgreen.account.report.line">
+        <field name="name">INCOME</field>
+        <field name="code">PL_INCOME</field>
+        <field name="report_key">profit_and_loss</field>
+        <field name="parent_id" ref="pl_root"/>
+        <field name="line_type">sum</field>
+        <field name="sequence" eval="10"/>
+        <field name="hide_if_zero" eval="False"/>
+        <!-- Reversed here so credit balances print positive; inherited below. -->
+        <field name="sign">-1</field>
+    </record>
+
+    <record id="pl_gross_profit" model="somgreen.account.report.line">
+        <field name="name">Gross Profit</field>
+        <field name="code">PL_GROSS_PROFIT</field>
+        <field name="report_key">profit_and_loss</field>
+        <field name="parent_id" ref="pl_income"/>
+        <field name="line_type">aggregate</field>
+        <field name="formula">PL_OPERATING_INCOME - PL_COST_OF_REVENUE</field>
+        <field name="sequence" eval="10"/>
+        <field name="hide_if_zero" eval="False"/>
+    </record>
+
+    <record id="pl_operating_income" model="somgreen.account.report.line">
+        <field name="name">Operating Income</field>
+        <field name="code">PL_OPERATING_INCOME</field>
+        <field name="report_key">profit_and_loss</field>
+        <field name="parent_id" ref="pl_gross_profit"/>
+        <field name="line_type">account_type</field>
+        <field name="account_type_codes">income</field>
+        <field name="show_accounts" eval="True"/>
+        <field name="sequence" eval="10"/>
+    </record>
+
+    <record id="pl_cost_of_revenue" model="somgreen.account.report.line">
+        <field name="name">Cost of Revenue</field>
+        <field name="code">PL_COST_OF_REVENUE</field>
+        <field name="report_key">profit_and_loss</field>
+        <field name="parent_id" ref="pl_gross_profit"/>
+        <field name="line_type">account_type</field>
+        <field name="account_type_codes">expense_direct_cost</field>
+        <field name="show_accounts" eval="True"/>
+        <!--
+            Back to Preserve. This line sits under INCOME, which is reversed, but
+            it holds debit balances - so it prints positive and Gross Profit
+            subtracts it explicitly.
+        -->
+        <field name="sign">1</field>
+        <field name="sequence" eval="20"/>
+    </record>
+
+    <record id="pl_other_income" model="somgreen.account.report.line">
+        <field name="name">Other Income</field>
+        <field name="code">PL_OTHER_INCOME</field>
+        <field name="report_key">profit_and_loss</field>
+        <field name="parent_id" ref="pl_income"/>
+        <field name="line_type">account_type</field>
+        <field name="account_type_codes">income_other</field>
+        <field name="show_accounts" eval="True"/>
+        <field name="sequence" eval="20"/>
+    </record>
+
+    <!-- ======================================================== EXPENSES -->
+
+    <record id="pl_expenses" model="somgreen.account.report.line">
+        <field name="name">EXPENSES</field>
+        <field name="code">PL_EXPENSES</field>
+        <field name="report_key">profit_and_loss</field>
+        <field name="parent_id" ref="pl_root"/>
+        <field name="line_type">sum</field>
+        <field name="sequence" eval="20"/>
+        <field name="hide_if_zero" eval="False"/>
+        <field name="sign">1</field>
+    </record>
+
+    <record id="pl_operating_expenses" model="somgreen.account.report.line">
+        <field name="name">Operating Expenses</field>
+        <field name="code">PL_OPERATING_EXPENSES</field>
+        <field name="report_key">profit_and_loss</field>
+        <field name="parent_id" ref="pl_expenses"/>
+        <field name="line_type">account_type</field>
+        <field name="account_type_codes">expense</field>
+        <field name="show_accounts" eval="True"/>
+        <field name="sequence" eval="10"/>
+    </record>
+
+    <record id="pl_depreciation" model="somgreen.account.report.line">
+        <field name="name">Depreciation</field>
+        <field name="code">PL_DEPRECIATION</field>
+        <field name="report_key">profit_and_loss</field>
+        <field name="parent_id" ref="pl_expenses"/>
+        <field name="line_type">account_type</field>
+        <field name="account_type_codes">expense_depreciation</field>
+        <field name="show_accounts" eval="True"/>
+        <field name="sequence" eval="20"/>
+    </record>
+
+    <!-- ====================================================== NET RESULT -->
+
+    <record id="pl_net_profit" model="somgreen.account.report.line">
+        <field name="name">NET PROFIT</field>
+        <field name="code">PL_NET_PROFIT</field>
+        <field name="report_key">profit_and_loss</field>
+        <field name="parent_id" ref="pl_root"/>
+        <field name="line_type">aggregate</field>
+        <field name="formula">PL_INCOME - PL_EXPENSES</field>
+        <field name="sequence" eval="30"/>
+        <field name="hide_if_zero" eval="False"/>
+        <field name="sign">1</field>
+    </record>
+
+</odoo>

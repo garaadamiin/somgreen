@@ -1,0 +1,11 @@
+id,name,default_code,type,is_storable,categ_id/id,uom_id/id,uom_po_id/id,tracking,weight,volume,purchase_ok,sale_ok,list_price
+somgreen.prod_md_dia_001,Baby Diaper Newborn under 5kg - Carton 8 packs x 40,MD-DIA-001,consu,1,somgreen_config.categ_merchandise_hygiene,uom.product_uom_unit,uom.product_uom_unit,none,7.5,0.100,1,1,0.00
+somgreen.prod_md_dia_002,Baby Diaper Small 4-8kg - Carton 8 packs x 36,MD-DIA-002,consu,1,somgreen_config.categ_merchandise_hygiene,uom.product_uom_unit,uom.product_uom_unit,none,8.2,0.105,1,1,0.00
+somgreen.prod_md_dia_003,Baby Diaper Medium 6-11kg - Carton 8 packs x 32,MD-DIA-003,consu,1,somgreen_config.categ_merchandise_hygiene,uom.product_uom_unit,uom.product_uom_unit,none,9.4,0.110,1,1,0.00
+somgreen.prod_md_dia_004,Baby Diaper Large 9-14kg - Carton 8 packs x 28,MD-DIA-004,consu,1,somgreen_config.categ_merchandise_hygiene,uom.product_uom_unit,uom.product_uom_unit,none,10.8,0.115,1,1,0.00
+somgreen.prod_md_dia_005,Baby Diaper XL 12-17kg - Carton 8 packs x 24,MD-DIA-005,consu,1,somgreen_config.categ_merchandise_hygiene,uom.product_uom_unit,uom.product_uom_unit,none,11.6,0.120,1,1,0.00
+somgreen.prod_md_dia_006,Baby Diaper XXL 15kg plus - Carton 8 packs x 20,MD-DIA-006,consu,1,somgreen_config.categ_merchandise_hygiene,uom.product_uom_unit,uom.product_uom_unit,none,12.4,0.125,1,1,0.00
+somgreen.prod_md_pnt_001,Baby Pull-Up Pants Medium - Carton 8 packs x 30,MD-PNT-001,consu,1,somgreen_config.categ_merchandise_hygiene,uom.product_uom_unit,uom.product_uom_unit,none,9.8,0.112,1,1,0.00
+somgreen.prod_md_wip_001,Baby Wet Wipes 80s - Carton 24 packs,MD-WIP-001,consu,1,somgreen_config.categ_merchandise_hygiene,uom.product_uom_unit,uom.product_uom_unit,none,14.0,0.055,1,1,0.00
+somgreen.prod_md_adt_001,Adult Diaper Large - Carton 6 packs x 10,MD-ADT-001,consu,1,somgreen_config.categ_merchandise_hygiene,uom.product_uom_unit,uom.product_uom_unit,none,6.9,0.095,1,1,0.00
+somgreen.prod_md_snp_001,Sanitary Pads Regular 10s - Carton 48 packs,MD-SNP-001,consu,1,somgreen_config.categ_merchandise_hygiene,uom.product_uom_unit,uom.product_uom_unit,none,8.6,0.060,1,1,0.00

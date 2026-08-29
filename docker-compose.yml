@@ -1,0 +1,77 @@
+services:
+  app:
+    # Pinned by digest (odoo:18.0 build 18.0-20250710). A floating tag lets a routine
+    # `docker compose pull` land a new build and trigger unplanned module upgrades.
+    image: odoo@sha256:1d243f0f1448390c2863575efa6a78cc02b1d44586d8fb9ea472f8e216609845
+    container_name: somgreen_app
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      # 8069 on the host is held by the pms_erp project
+      - "8071:8069"
+      # gevent/websocket process - required because workers > 0 in odoo.conf,
+      # otherwise live chatter and activity notifications silently do nothing
+      - "8072:8072"
+    volumes:
+      - ./odoo-web-data:/var/lib/odoo
+      - ./config:/etc/odoo
+      - ./custom-addons:/mnt/extra-addons
+      - ./logs:/var/log/odoo
+    environment:
+      - HOST=db
+      - USER=odoo
+      - PASSWORD=${ODOO_DB_PASSWORD:-myodoo}
+    restart: unless-stopped
+    networks:
+      - odoo-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8069/web/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+
+  db:
+    image: postgres:15
+    container_name: somgreen_db
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-myodoo}
+      - POSTGRES_USER=odoo
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    ports:
+      # Bound to 127.0.0.1 on purpose: pgAdmin and other host tools can reach the
+      # database, but it is never published to the LAN. 54321 is held by pms_erp.
+      - "127.0.0.1:54322:5432"
+    restart: unless-stopped
+    networks:
+      - odoo-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U odoo -d postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+networks:
+  odoo-network:
+    driver: bridge

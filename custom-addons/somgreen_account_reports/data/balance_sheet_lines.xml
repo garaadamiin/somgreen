@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!--
+        The Balance Sheet, as structure rather than code.
+
+        Layout follows the Odoo Enterprise statement of financial position:
+
+            BALANCE SHEET
+              ASSETS
+                Current Assets
+                  Bank and Cash Accounts / Receivables / Current Assets / Prepayments
+                Plus Fixed Assets
+                Plus Non-current Assets
+              LIABILITIES
+                Current Liabilities
+                  Current Liabilities / Payables
+                Plus Non-current Liabilities
+              EQUITY
+                Profit (Loss) to report
+                Previous Years Unallocated Earnings
+                Retained Earnings
+              LIABILITIES + EQUITY
+
+        SIGN. Reverse is declared exactly twice - on LIABILITIES and on EQUITY.
+        Every line beneath them inherits it through effective_sign, down to the
+        individual account rows, so credit balances print positive and
+        ASSETS == LIABILITIES + EQUITY holds on the face of the report.
+
+        ZERO LINES. Sections that must always print (the root, the three
+        headings and the check line) carry hide_if_zero=False. Everything else
+        disappears when nil, which is what keeps the statement short.
+
+        ACCOUNT TYPES. Lines group by account_type, never by account code, so
+        accounts added to the chart later - including the Phase 2 manufacturing
+        accounts in data/phase2-manufacturing/accounts.csv - land in the right
+        section with no change here.
+
+        noupdate="1" follows the house rule set in
+        somgreen_config/data/analytic_plan.xml: the accountant may rename or
+        resequence these lines, and a module upgrade must not undo that.
+    -->
+
+    <!-- ============================================================ ROOT -->
+
+    <record id="bs_root" model="somgreen.account.report.line">
+        <field name="name">BALANCE SHEET</field>
+        <field name="code">BS_ROOT</field>
+        <field name="report_key">balance_sheet</field>
+        <field name="line_type">header</field>
+        <field name="sequence" eval="10"/>
+        <field name="hide_if_zero" eval="False"/>
+        <field name="sign">1</field>
+    </record>
+
+    <!-- ========================================================== ASSETS -->
+
+    <record id="bs_assets" model="somgreen.account.report.line">
+        <field name="name">ASSETS</field>
+        <field name="code">BS_ASSETS</field>
+        <field name="parent_id" ref="bs_root"/>
+        <field name="line_type">sum</field>
+        <field name="sequence" eval="10"/>
+        <field name="hide_if_zero" eval="False"/>
+    </record>
+
+    <record id="bs_current_assets" model="somgreen.account.report.line">
+        <field name="name">Current Assets</field>
+        <field name="code">BS_CURRENT_ASSETS</field>
+        <field name="parent_id" ref="bs_assets"/>
+        <field name="line_type">sum</field>
+        <field name="sequence" eval="10"/>
+    </record>
+
+    <record id="bs_bank" model="somgreen.account.report.line">
+        <field name="name">Bank and Cash Accounts</field>
+        <field name="code">BS_BANK</field>
+        <field name="parent_id" ref="bs_current_assets"/>
+        <field name="line_type">account_type</field>
+        <field name="account_type_codes">asset_cash</field>
+        <field name="show_accounts" eval="True"/>
+        <field name="sequence" eval="10"/>
+    </record>
+
+    <record id="bs_receivables" model="somgreen.account.report.line">
+        <field name="name">Receivables</field>
+        <field name="code">BS_RECEIVABLES</field>
+        <field name="parent_id" ref="bs_current_assets"/>
+        <field name="line_type">account_type</field>
+        <field name="account_type_codes">asset_receivable</field>
+        <field name="show_accounts" eval="True"/>
+        <field name="sequence" eval="20"/>
+    </record>
+
+    <record id="bs_current" model="somgreen.account.report.line">
+        <field name="name">Current Assets</field>
+        <field name="code">BS_CURRENT</field>
+        <field name="parent_id" ref="bs_current_assets"/>
+        <field name="line_type">account_type</field>
+        <field name="account_type_codes">asset_current</field>
+        <field name="show_accounts" eval="True"/>
+        <field name="sequence" eval="30"/>
+    </record>
+
+    <record id="bs_prepayments" model="somgreen.account.report.line">
+        <field name="name">Prepayments</field>
+        <field name="code">BS_PREPAYMENTS</field>
+        <field name="parent_id" ref="bs_current_assets"/>
+        <field name="line_type">account_type</field>
+        <field name="account_type_codes">asset_prepayments</field>
+        <field name="show_accounts" eval="True"/>
+        <field name="sequence" eval="40"/>
+    </record>
+
+    <record id="bs_fixed" model="somgreen.account.report.line">
+        <field name="name">Plus Fixed Assets</field>
+        <field name="code">BS_FIXED</field>
+        <field name="parent_id" ref="bs_assets"/>
+        <field name="line_type">account_type</field>
+        <field name="account_type_codes">asset_fixed</field>
+        <field name="show_accounts" eval="True"/>
+        <field name="sequence" eval="20"/>
+    </record>
+
+    <record id="bs_non_current_assets" model="somgreen.account.report.line">
+        <field name="name">Plus Non-current Assets</field>
+        <field name="code">BS_NON_CURRENT_ASSETS</field>
+        <field name="parent_id" ref="bs_assets"/>
+        <field name="line_type">account_type</field>
+        <field name="account_type_codes">asset_non_current</field>
+        <field name="show_accounts" eval="True"/>
+        <field name="sequence" eval="30"/>
+    </record>
+
+    <!-- ===================================================== LIABILITIES -->
+
+    <record id="bs_liabilities" model="somgreen.account.report.line">
+        <field name="name">LIABILITIES</field>
+        <field name="code">BS_LIABILITIES</field>
+        <field name="parent_id" ref="bs_root"/>
+        <field name="line_type">sum</field>
+        <field name="sequence" eval="20"/>
+        <field name="hide_if_zero" eval="False"/>
+        <!-- Reversed here, inherited by everything below. -->
+        <field name="sign">-1</field>
+    </record>
+
+    <record id="bs_current_liabilities" model="somgreen.account.report.line">
+        <field name="name">Current Liabilities</field>
+        <field name="code">BS_CURRENT_LIABILITIES</field>
+        <field name="parent_id" ref="bs_liabilities"/>
+        <field name="line_type">sum</field>
+        <field name="sequence" eval="10"/>
+    </record>
+
+    <record id="bs_current_liab_accounts" model="somgreen.account.report.line">
+        <field name="name">Current Liabilities</field>
+        <field name="code">BS_CURRENT_LIAB_ACCOUNTS</field>
+        <field name="parent_id" ref="bs_current_liabilities"/>
+        <field name="line_type">account_type</field>
+        <field name="account_type_codes">liability_current,liability_credit_card</field>
+        <field name="show_accounts" eval="True"/>
+        <field name="sequence" eval="10"/>
+    </record>
+
+    <record id="bs_payables" model="somgreen.account.report.line">
+        <field name="name">Payables</field>
+        <field name="code">BS_PAYABLES</field>
+        <field name="parent_id" ref="bs_current_liabilities"/>
+        <field name="line_type">account_type</field>
+        <field name="account_type_codes">liability_payable</field>
+        <field name="show_accounts" eval="True"/>
+        <field name="sequence" eval="20"/>
+    </record>
+
+    <record id="bs_non_current_liabilities" model="somgreen.account.report.line">
+        <field name="name">Plus Non-current Liabilities</field>
+        <field name="code">BS_NON_CURRENT_LIABILITIES</field>
+        <field name="parent_id" ref="bs_liabilities"/>
+        <field name="line_type">account_type</field>
+        <field name="account_type_codes">liability_non_current</field>
+        <field name="show_accounts" eval="True"/>
+        <field name="sequence" eval="20"/>
+    </record>
+
+    <!-- ========================================================== EQUITY -->
+
+    <record id="bs_equity" model="somgreen.account.report.line">
+        <field name="name">EQUITY</field>
+        <field name="code">BS_EQUITY</field>
+        <field name="parent_id" ref="bs_root"/>
+        <field name="line_type">sum</field>
+        <field name="sequence" eval="30"/>
+        <field name="hide_if_zero" eval="False"/>
+        <!-- Reversed here, inherited by everything below. -->
+        <field name="sign">-1</field>
+    </record>
+
+    <record id="bs_net_profit" model="somgreen.account.report.line">
+        <field name="name">Profit (Loss) to report</field>
+        <field name="code">BS_NET_PROFIT</field>
+        <field name="parent_id" ref="bs_equity"/>
+        <field name="line_type">net_profit</field>
+        <field name="sequence" eval="10"/>
+    </record>
+
+    <record id="bs_prior_earnings" model="somgreen.account.report.line">
+        <field name="name">Previous Years Unallocated Earnings</field>
+        <field name="code">BS_PRIOR_EARNINGS</field>
+        <field name="parent_id" ref="bs_equity"/>
+        <field name="line_type">unallocated_prior</field>
+        <field name="sequence" eval="20"/>
+    </record>
+
+    <record id="bs_retained" model="somgreen.account.report.line">
+        <field name="name">Retained Earnings</field>
+        <field name="code">BS_RETAINED</field>
+        <field name="parent_id" ref="bs_equity"/>
+        <field name="line_type">account_type</field>
+        <!--
+            Type "equity" only. Odoo 18 keeps "equity_unaffected" (SomGreen
+            999999 Undistributed Profits/Losses) as a distinct account type, so
+            it is excluded here and picked up by BS_PRIOR_EARNINGS instead. No
+            double count.
+        -->
+        <field name="account_type_codes">equity</field>
+        <field name="show_accounts" eval="True"/>
+        <field name="sequence" eval="30"/>
+    </record>
+
+    <!-- ===================================================== CHECK TOTAL -->
+
+    <record id="bs_total" model="somgreen.account.report.line">
+        <field name="name">LIABILITIES + EQUITY</field>
+        <field name="code">BS_TOTAL</field>
+        <field name="parent_id" ref="bs_root"/>
+        <field name="line_type">aggregate</field>
+        <field name="formula">BS_LIABILITIES + BS_EQUITY</field>
+        <field name="sequence" eval="40"/>
+        <field name="hide_if_zero" eval="False"/>
+        <field name="sign">1</field>
+    </record>
+
+</odoo>

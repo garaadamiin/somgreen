@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Accounting > Reporting > Financial Reports.
+
+        The parent menu belongs to accounting_pdf_reports, which is the only
+        reason this module depends on it. Sequences 4 and 5 put the two SomGreen
+        statements above the vendor reports that remain.
+    -->
+
+    <menuitem id="menu_somgreen_balance_sheet"
+              name="Balance Sheet"
+              sequence="4"
+              action="somgreen_account_reports.action_somgreen_balance_sheet"
+              parent="accounting_pdf_reports.menu_finance_legal_statement"
+              groups="account.group_account_user,account.group_account_manager"/>
+
+    <menuitem id="menu_somgreen_profit_and_loss"
+              name="Profit and Loss"
+              sequence="5"
+              action="somgreen_account_reports.action_somgreen_profit_and_loss"
+              parent="accounting_pdf_reports.menu_finance_legal_statement"
+              groups="account.group_account_user,account.group_account_manager"/>
+
+    <!--
+        Archive the two accounting_pdf_reports statements these replace, so the
+        accountant is not offered two menu items with the same name and two
+        different answers.
+
+        Reversible and non-destructive: the vendor actions
+        (action_account_report_bs, action_account_report_pl) and their
+        account.financial.report trees are untouched, and either menu can be
+        un-archived from Settings > Technical > User Interface > Menu Items. The
+        vendor declares both with <menuitem>, which does not write `active`, so a
+        later `-u accounting_pdf_reports` will not resurrect them.
+
+        Everything else the vendor bundle provides - Trial Balance, General
+        Ledger, Partner Ledger, Aged Payable/Receivable, Cash Book, Day Book,
+        Bank Book, Tax Report, Journal Audit - is left exactly as it was.
+    -->
+    <record id="accounting_pdf_reports.menu_account_report_bs" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+
+    <record id="accounting_pdf_reports.menu_account_report_pl" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+
+    <!--
+        Structure editor, kept in Configuration next to the other accounting
+        setup rather than beside the reports themselves.
+    -->
+    <menuitem id="menu_somgreen_account_report_line"
+              name="Financial Report Structure"
+              sequence="20"
+              action="somgreen_account_reports.action_somgreen_account_report_line"
+              parent="accounting_pdf_reports.menu_finance_reports_settings"
+              groups="account.group_account_manager"/>
+
+</odoo>

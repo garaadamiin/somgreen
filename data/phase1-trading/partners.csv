@@ -1,0 +1,13 @@
+id,name,is_company,street,city,country_id/id,phone,email,supplier_rank,customer_rank,comment
+somgreen.partner_sup_diaper_tr,EXAMPLE - Anadolu Hygiene Industries,1,Organize Sanayi Bolgesi,Gaziantep,base.tr,,export@example-hygiene.test,1,0,Diaper supplier. Sea freight Mersin to Mogadishu approx 30 days door to door - put this on the reordering rule lead time.
+somgreen.partner_sup_diaper_cn,EXAMPLE - Fujian Hygiene Products Co Ltd,1,No 5 Industrial Avenue,Quanzhou,base.cn,,sales@example-fujian.test,1,0,"Alternative diaper supplier. Sea freight approx 45 days. Longer lead time but lower FOB - compare on LANDED cost once the first container is costed, not on FOB."
+somgreen.partner_sup_diaper_ae,EXAMPLE - Gulf Hygiene Trading FZE,1,Jebel Ali Free Zone,Dubai,base.ae,,info@example-gulf.test,1,0,Regional stockist. Short lead time and small lot sizes - the one to use for a gap-fill rather than a planned container.
+somgreen.partner_sup_clearing,EXAMPLE - Port Clearing Agents Ltd,1,Port Road,Mogadishu,base.so,,,1,0,Customs clearing and forwarding. Bills against the landed cost services SRV-LC-*. Their invoice must reach the accountant BEFORE the goods are sold - see the README on landed cost timing.
+somgreen.partner_sup_transport,EXAMPLE - Inland Haulage Services,1,Port Road,Mogadishu,base.so,,,1,0,Port to warehouse trucking. Bills against SRV-LC-006 Inland Transport.
+somgreen.partner_cust_wholesale,EXAMPLE - Bakara Wholesale Distributor,1,Bakara Market,Mogadishu,base.so,,,0,1,Domestic wholesale. Assign the Wholesale pricelist and a credit limit.
+somgreen.partner_cust_retail_chain,EXAMPLE - Retail Supermarket Chain,1,Maka Al Mukarama Rd,Mogadishu,base.so,,,0,1,Domestic retail chain. Assign the Retail pricelist.
+somgreen.partner_cust_pharmacy,EXAMPLE - City Pharmacy Group,1,Hodan District,Mogadishu,base.so,,,0,1,Pharmacy chain - diapers and sanitary lines. Retail pricelist.
+somgreen.partner_cust_export_ke,EXAMPLE - Nairobi Import Partners,1,Enterprise Road,Nairobi,base.ke,,,0,1,"EXPORT customer - assign the Export pricelist AND the Export Zero Rated fiscal position. The pricelist sets the price, the fiscal position sets the tax; neither does the other job."
+somgreen.partner_cust_export_et,EXAMPLE - Addis Trading PLC,1,Bole Road,Addis Ababa,base.et,,,0,1,EXPORT customer - Export pricelist and Export Zero Rated fiscal position.
+somgreen.partner_sup_tissue_cn,EXAMPLE - Jiangsu Tissue Mill Co Ltd,1,No 88 Industrial Road,Nantong,base.cn,,sales@example-mill.test,1,0,PHASE 2 - tissue pack supplier for the factory. Not needed until manufacturing starts.
+somgreen.partner_sup_pack_local,EXAMPLE - Local Carton and Print,1,Industrial Area,Mogadishu,base.so,,,1,0,PHASE 2 - carton boxes and labels for the factory. Short lead time.

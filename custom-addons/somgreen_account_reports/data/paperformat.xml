@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        base.paperformat_euro uses header_spacing 35 / margin_top 40, which pushes
+        the body far enough down that the layout no longer matches the reference
+        document. This format leaves just enough room for the one-line header
+        (timestamp on the left, page x / y on the right) and no more.
+    -->
+
+    <record id="paperformat_somgreen_financial_report" model="report.paperformat">
+        <field name="name">SomGreen Financial Report A4</field>
+        <field name="default" eval="False"/>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">25</field>
+        <field name="margin_bottom">12</field>
+        <field name="margin_left">7</field>
+        <field name="margin_right">7</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">12</field>
+        <field name="dpi">90</field>
+    </record>
+
+</odoo>

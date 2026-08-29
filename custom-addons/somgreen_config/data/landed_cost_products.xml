@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!--
+        Landed cost services for imported merchandise.
+
+        Without these, the cost of a carton of diapers is the supplier's invoice
+        price only, and every sale is credited with a margin it did not earn -
+        typically 15-30% overstated on sea-freighted consumer goods. Margin
+        reporting built on that is fiction, and it is the single most common way
+        a small importer discovers it has been selling at a loss.
+
+        SPLIT METHOD IS A REAL DECISION, NOT A FORMALITY.
+
+        Diapers, wet wipes and tissue are all LOW-DENSITY cargo: a container
+        fills up - "cubes out" - long before it reaches its weight limit. Freight
+        on cube-out cargo is charged against volume, whether that is an FCL rate
+        for the box or a revenue-ton rate that resolves to CBM. So freight, port
+        handling and clearing split BY VOLUME.
+
+        Duty and insurance are assessed on declared value, so those split by
+        cost. Bank and LC charges are a percentage of the invoice, so likewise.
+
+        Getting this backwards quietly misprices every product in a mixed
+        shipment while the total stays correct - which is exactly what makes it
+        hard to notice.
+
+        Valid split methods (stock_landed_costs/models/stock_landed_cost.py):
+          equal | by_quantity | by_current_cost_price | by_weight | by_volume
+
+        THE SPLIT METHOD BELOW IS A DEFAULT, NOT A LOCK. It is editable on each
+        landed-cost line. Override it when a shipment is genuinely different:
+        a container of dense goods that hits the weight limit should split
+        freight by_weight, and a specific (per-kg or per-unit) customs duty
+        should split by_weight or by_quantity rather than by value.
+
+        TWO THINGS SILENTLY BREAK LANDED COSTS.
+
+        1. Costing method. Odoo only adjusts value when costing is AVCO or FIFO
+           (the guards on cost_method in ('fifo','average')). Under standard
+           costing the adjustment is skipped outright. Every stocked category
+           here is AVCO for exactly this reason - do not change one to standard.
+
+        2. A zero on the field being split by. A product with volume 0 receives
+           none of a by_volume allocation and everything else in the container
+           absorbs its share; the same is true of weight under by_weight. The
+           totals still balance, which is what hides it. Both `weight` and
+           `volume` are therefore mandatory columns on every product CSV, so
+           either split method works without silently zeroing a line.
+
+        Each of these products still needs an expense account - the Services
+        category carries none by design, so set one per product with the
+        accountant when the chart of accounts is wired (README Phase 1 step 3).
+        Customs Duty & Clearing (502100 in data/phase1-trading/accounts.csv) is
+        the natural home for most of them.
+    -->
+
+    <record id="product_lc_sea_freight" model="product.template">
+        <field name="name">Sea Freight</field>
+        <field name="default_code">SRV-LC-001</field>
+        <field name="type">service</field>
+        <field name="categ_id" ref="categ_services"/>
+        <field name="landed_cost_ok" eval="True"/>
+        <field name="split_method_landed_cost">by_volume</field>
+        <field name="purchase_ok" eval="True"/>
+        <field name="sale_ok" eval="False"/>
+    </record>
+
+    <record id="product_lc_customs_duty" model="product.template">
+        <field name="name">Customs Duty</field>
+        <field name="default_code">SRV-LC-002</field>
+        <field name="type">service</field>
+        <field name="categ_id" ref="categ_services"/>
+        <field name="landed_cost_ok" eval="True"/>
+        <field name="split_method_landed_cost">by_current_cost_price</field>
+        <field name="purchase_ok" eval="True"/>
+        <field name="sale_ok" eval="False"/>
+    </record>
+
+    <record id="product_lc_clearing" model="product.template">
+        <field name="name">Clearing &amp; Forwarding</field>
+        <field name="default_code">SRV-LC-003</field>
+        <field name="type">service</field>
+        <field name="categ_id" ref="categ_services"/>
+        <field name="landed_cost_ok" eval="True"/>
+        <field name="split_method_landed_cost">by_volume</field>
+        <field name="purchase_ok" eval="True"/>
+        <field name="sale_ok" eval="False"/>
+    </record>
+
+    <record id="product_lc_insurance" model="product.template">
+        <field name="name">Marine Insurance</field>
+        <field name="default_code">SRV-LC-004</field>
+        <field name="type">service</field>
+        <field name="categ_id" ref="categ_services"/>
+        <field name="landed_cost_ok" eval="True"/>
+        <field name="split_method_landed_cost">by_current_cost_price</field>
+        <field name="purchase_ok" eval="True"/>
+        <field name="sale_ok" eval="False"/>
+    </record>
+
+    <record id="product_lc_port_handling" model="product.template">
+        <field name="name">Port Handling &amp; Demurrage</field>
+        <field name="default_code">SRV-LC-005</field>
+        <field name="type">service</field>
+        <field name="categ_id" ref="categ_services"/>
+        <field name="landed_cost_ok" eval="True"/>
+        <field name="split_method_landed_cost">by_volume</field>
+        <field name="purchase_ok" eval="True"/>
+        <field name="sale_ok" eval="False"/>
+    </record>
+
+    <record id="product_lc_inland_transport" model="product.template">
+        <field name="name">Inland Transport - Port to Warehouse</field>
+        <field name="default_code">SRV-LC-006</field>
+        <field name="type">service</field>
+        <field name="categ_id" ref="categ_services"/>
+        <field name="landed_cost_ok" eval="True"/>
+        <field name="split_method_landed_cost">by_volume</field>
+        <field name="purchase_ok" eval="True"/>
+        <field name="sale_ok" eval="False"/>
+    </record>
+
+    <record id="product_lc_bank_charges" model="product.template">
+        <field name="name">LC &amp; Bank Charges</field>
+        <field name="default_code">SRV-LC-007</field>
+        <field name="type">service</field>
+        <field name="categ_id" ref="categ_services"/>
+        <field name="landed_cost_ok" eval="True"/>
+        <field name="split_method_landed_cost">by_current_cost_price</field>
+        <field name="purchase_ok" eval="True"/>
+        <field name="sale_ok" eval="False"/>
+    </record>
+
+</odoo>

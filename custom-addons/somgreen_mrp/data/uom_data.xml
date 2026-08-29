@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Carton sealing tape is bought by the roll and consumed by the metre.
+        Expressing it as a fraction of a roll on the BoM (0.004 Roll) is both
+        unintuitive on the packing floor and fragile against rounding; metres are
+        what an operator can actually verify against the machine.
+
+        Lives here rather than in somgreen_config because tape is a packing
+        material - the trading business never buys it.
+    -->
+    <record id="uom_tape_roll_100m" model="uom.uom">
+        <field name="name">Roll (100 m)</field>
+        <field name="category_id" ref="uom.uom_categ_length"/>
+        <field name="factor_inv" eval="100"/>
+        <field name="uom_type">bigger</field>
+        <field name="rounding" eval="0.01"/>
+    </record>
+
+</odoo>

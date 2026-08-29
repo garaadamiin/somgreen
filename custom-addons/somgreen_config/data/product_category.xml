@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!--
+        Product categories carry the costing method and the accounting hooks.
+
+        PHASE 1 - TRADING. These are the categories a buy-and-resell business
+        needs. The manufacturing categories (Raw Materials, Finished Goods,
+        Waste) live in `somgreen_mrp` and appear only when the factory starts.
+
+            Purchase  ->  Merchandise stock  ->  Sale
+
+        Every stocked category is AVCO ('average'): landed costs only settle onto
+        AVCO or FIFO products, so under standard costing imported freight and duty
+        would never reach the goods.
+
+        VALUATION IS LEFT ON 'manual_periodic' HERE AND FLIPPED TO AUTOMATED IN
+        THE UI. It cannot be set to 'real_time' in this file. Odoo 18 enforces
+        _check_valuation_accounts (stock_account/models/product.py:977) as an
+        @api.constrains: writing property_valuation='real_time' while any of
+        property_stock_account_input_categ_id, _output_categ_id or
+        property_stock_valuation_account_id is empty raises "The stock accounts
+        should be set in order to use the automatic valuation" and aborts the
+        install. The accounts do not exist yet at this point - they arrive with
+        data/phase1-trading/accounts.csv, which is imported after this module.
+
+        So valuation and its three accounts must be set TOGETHER, in one save,
+        in the UI. See README Phase 1 step 3. Until that is done these
+        categories post no inventory entries to the GL.
+
+        noupdate="1": the accountant wires those accounts and flips valuation by
+        hand, and `-u somgreen_config` must not reset the fields back to the
+        blank values below. Same reasoning as analytic_plan.xml.
+
+        ACCOUNTS DO NOT INHERIT FROM A PARENT CATEGORY. A product reads accounts
+        from its OWN category only (account/models/product.py and
+        stock_account/models/product.py read self.categ_id.property_*, never
+        parent_id). Every category below that can hold a product is therefore
+        wired individually, parent included.
+    -->
+
+    <!--
+        The trading tree. The parent is wired too, as a safety net for a product
+        filed there by mistake, but products should sit on a child.
+
+        TO ADD A PRODUCT FAMILY: create it in the UI (Inventory > Configuration
+        > Product Categories) and wire its accounts in the same save. Adding a
+        block here and upgrading also works, but noupdate="1" means the upgrade
+        only creates records that do not exist yet - it will not touch the ones
+        already wired. Give a family its own category when you want to read its
+        margin separately; otherwise file it under General Merchandise.
+    -->
+    <record id="categ_merchandise" model="product.category">
+        <field name="name">Merchandise / Traded Goods</field>
+        <field name="parent_id" ref="product.product_category_all"/>
+        <field name="property_cost_method">average</field>
+        <field name="property_valuation">manual_periodic</field>
+    </record>
+
+    <!-- The first trading line: imported diapers and wet wipes. -->
+    <record id="categ_merchandise_hygiene" model="product.category">
+        <field name="name">Diapers &amp; Hygiene</field>
+        <field name="parent_id" ref="categ_merchandise"/>
+        <field name="property_cost_method">average</field>
+        <field name="property_valuation">manual_periodic</field>
+    </record>
+
+    <!--
+        Catch-all for bought-in goods that do not yet justify their own family.
+        It exists so a new product always has a correctly wired home - a product
+        parked on an unwired category cannot be received at all, and the error
+        surfaces at the worst moment, with the container already at the port.
+    -->
+    <record id="categ_merchandise_general" model="product.category">
+        <field name="name">General Merchandise</field>
+        <field name="parent_id" ref="categ_merchandise"/>
+        <field name="property_cost_method">average</field>
+        <field name="property_valuation">manual_periodic</field>
+    </record>
+
+    <!--
+        Machine and vehicle spares. Manual valuation is deliberate: expensed as
+        consumed rather than held in perpetual inventory, proportionate for a
+        small business. Manual valuation needs no account wiring.
+    -->
+    <record id="categ_spares" model="product.category">
+        <field name="name">Spares &amp; Maintenance</field>
+        <field name="parent_id" ref="product.product_category_all"/>
+        <field name="property_cost_method">average</field>
+        <field name="property_valuation">manual_periodic</field>
+    </record>
+
+    <!--
+        Landed-cost services and other non-stock. No valuation: services are
+        never held in inventory. The landed-cost products still need an expense
+        account set individually - see landed_cost_products.xml.
+    -->
+    <record id="categ_services" model="product.category">
+        <field name="name">Services</field>
+        <field name="parent_id" ref="product.product_category_all"/>
+    </record>
+
+</odoo>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!--
+        Packing line work center.
+
+        The operation is packing: tissue packs go in, cartons come out. One work
+        center is enough - there is no rewinding or log-sawing to model.
+
+        noupdate="1" is deliberate: costs_hour is tuned by the accountant against
+        real payroll and power bills, and a module upgrade must not overwrite that
+        with the placeholder below.
+
+        THE HOURLY COST IS A PLACEHOLDER. Replace it before go-live. It should
+        carry labour + electricity + a share of machine depreciation, so a
+        manufacturing order's cost reflects real packing cost rather than
+        materials wearing a disguise.
+
+        Work centers, operations and work orders are all present in Odoo 18
+        Community. What is NOT present is mrp_workorder, the Enterprise Shop Floor
+        tablet interface - operators record work orders from the standard backend
+        list view. Confirmed absent from the odoo:18.0 image.
+
+        ================================================================
+        TWO FIELDS ARE NOT SET HERE AND MUST BE SET IN THE UI
+        ================================================================
+
+        Both are on Manufacturing > Configuration > Work Centers > Packing Line.
+        Neither can be written from this file, and both matter.
+
+        1. EXPENSE ACCOUNT  ->  503900 Conversion Cost Absorbed
+
+        This is the single highest-value field in the Phase 2 setup. When a
+        manufacturing order is marked done, mrp_account's _post_labour picks the
+        credit account like this:
+
+            account = wo.workcenter_id.expense_account_id
+                      or product_accounts['expense']
+
+        Left blank, the fallback is the finished product's expense account -
+        501200 COGS - Manufactured Goods. Absorbed conversion cost would then be
+        credited straight INTO manufacturing COGS, netting against it, while the
+        actual packing wages sit in 601100 next to the office payroll. Result:
+        manufacturing margin reads better than it is, and the trading-versus-
+        manufacturing comparison this whole chart exists to produce is quietly
+        wrong in the direction that flatters the factory.
+
+        Pointed at 503900, the credit lands beside 503100-503400 (the actual
+        factory costs) under Cost of Revenue, and the difference between them is
+        the under/over-absorption variance - which is what tells you whether
+        costs_hour is anywhere near reality.
+
+        Not settable here: Odoo 18 generates account XML IDs per company, so
+        ref() to an account is not portable. Same reason somgreen_config carries
+        no account references at all - see its manifest.
+
+        2. ANALYTIC DISTRIBUTION  ->  Production (Cost Centre plan)
+
+        Creating the analytic account routes nothing to it. mrp_account's
+        _create_or_update_analytic_entry_for_record only creates analytic lines
+        when the work center itself carries an analytic_distribution:
+
+            if self.workcenter_id.analytic_distribution or ...
+
+        Not settable here either: analytic_distribution is a JSON field keyed by
+        analytic account database id, which is not known at data-load time.
+    -->
+
+    <record id="workcenter_packing" model="mrp.workcenter">
+        <field name="name">Packing Line</field>
+        <field name="code">WC-PCK</field>
+        <field name="costs_hour">12.00</field>
+        <field name="time_efficiency">100</field>
+        <field name="default_capacity">1</field>
+        <field name="time_start">10</field>
+        <field name="time_stop">10</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        PHASE 2 - production locations, added under the same warehouse Stock
+        location as the trading ones. Still one warehouse: the factory and the
+        trading stock share a site, and splitting them into two warehouses would
+        buy inter-warehouse resupply routes and a transfer for every internal
+        move, with no gain in visibility that a location filter does not give.
+
+        QC and DAMAGED already exist from somgreen_config and serve both sides -
+        imported tissue packs are counted in QC exactly as imported diapers are.
+
+        Requires the "Storage Locations" setting to be enabled.
+    -->
+
+    <record id="location_raw" model="stock.location">
+        <field name="name">RAW</field>
+        <field name="location_id" ref="stock.stock_location_stock"/>
+        <field name="usage">internal</field>
+        <field name="comment">Tissue packs awaiting packing.</field>
+    </record>
+
+    <record id="location_pack" model="stock.location">
+        <field name="name">PACK</field>
+        <field name="location_id" ref="stock.stock_location_stock"/>
+        <field name="usage">internal</field>
+        <field name="comment">Carton boxes, tape, labels, stretch wrap.</field>
+    </record>
+
+    <record id="location_wip" model="stock.location">
+        <field name="name">WIP</field>
+        <field name="location_id" ref="stock.stock_location_stock"/>
+        <field name="usage">internal</field>
+        <field name="comment">Material issued to the packing floor but not yet consumed by a manufacturing order.</field>
+    </record>
+
+    <record id="location_fg" model="stock.location">
+        <field name="name">FG</field>
+        <field name="location_id" ref="stock.stock_location_stock"/>
+        <field name="usage">internal</field>
+        <field name="comment">Finished cartons, ready to sell.</field>
+    </record>
+
+</odoo>

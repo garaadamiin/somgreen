@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!--
+        PHASE 2 - MANUFACTURING categories.
+
+            Raw Materials  ->  [Production]  ->  Finished Goods
+                                                      |
+                                                    Waste
+
+        These sit ALONGSIDE the trading categories from somgreen_config, not
+        instead of them. That separation is the whole point: bought-in goods
+        point at Sales/COGS - Merchandise, manufactured cartons point at
+        Sales/COGS - Manufactured Goods, and the P&L shows trading margin and
+        manufacturing margin as two readable lines rather than one blended
+        number that flatters whichever side is weaker.
+
+        AVCO for the same reasons as the trading categories - see
+        somgreen_config/data/product_category.xml. AVCO is not a preference
+        here: mrp_account/models/mrp_production.py:_cal_price sets the finished
+        move's cost from actual order cost only `if cost_method in ('fifo',
+        'average')`. Under standard costing the carton is valued at its standard,
+        the real packing cost never lands, and the conversion-cost mechanism
+        below goes dead.
+
+        VALUATION IS LEFT ON 'manual_periodic' HERE AND FLIPPED TO AUTOMATED IN
+        THE UI, exactly as in somgreen_config. The reason is the same but the
+        failure mode is worse.
+
+        somgreen_config cannot write 'real_time' because its accounts do not
+        exist yet and _check_valuation_accounts raises. Here they do exist, so
+        writing 'real_time' does NOT raise - and that is the problem. The
+        constraint (stock_account/models/product.py:977) checks only the three
+        MANDATORY fields, and each is company_dependent: with no value on the
+        category they resolve through the company ir.default fallbacks, which
+        Phase 1 pointed at the TRADING accounts. So the module would install
+        clean, the categories would look configured, and every manufacturing
+        stock move would post to 105100 Merchandise Inventory until someone
+        noticed. Silent, not loud - which is why the Phase 1 safeguard is kept.
+
+        Note the Production Account is NOT covered by that constraint at all.
+        mrp_account adds property_stock_account_production_cost_id to the
+        category's account list but not to the mandatory list, so leaving it
+        blank blocks nothing - it silently falls back to the stock input
+        account. Set it explicitly on all three categories.
+
+        ACCOUNTS DO NOT INHERIT FROM A PARENT CATEGORY, and these three are
+        flat, so wire each one directly. Per category, in ONE save:
+
+            Stock Valuation    105200 / 105300 / 105400
+            Stock Input        106100 Stock Interim - Received
+            Stock Output       106200 Stock Interim - Delivered
+            Production Account 105600 Cost of Production
+            Stock Journal      Inventory Valuation
+            Income             401200 Sales - Manufactured Goods
+            Expense            501200 COGS - Manufactured Goods
+            Costing Method     Average Cost (AVCO)
+            Inventory Valuation  Automated
+
+        noupdate="1": the accountant wires those accounts and flips valuation by
+        hand, and `-u somgreen_mrp` must not reset the fields back to the blank
+        values below. Same reasoning as somgreen_config.
+    -->
+
+    <!-- Everything consumed in packing: tissue packs, boxes, tape, labels,
+         stretch wrap. One bucket, no sub-categories - they are all consumed the
+         same way and valued the same way, and splitting them would only add
+         categories to keep wired. -->
+    <record id="categ_raw" model="product.category">
+        <field name="name">Raw Materials</field>
+        <field name="parent_id" ref="product.product_category_all"/>
+        <field name="property_cost_method">average</field>
+        <field name="property_valuation">manual_periodic</field>
+    </record>
+
+    <!-- Finished cartons, produced not bought. Automated valuation is mandatory
+         on THIS one in particular: mrp_account's _post_labour short-circuits on
+         `if mo.product_id.valuation != 'real_time': continue`, so under manual
+         valuation the work-center cost is never posted to the GL at all. -->
+    <record id="categ_finished" model="product.category">
+        <field name="name">Finished Goods</field>
+        <field name="parent_id" ref="product.product_category_all"/>
+        <field name="property_cost_method">average</field>
+        <field name="property_valuation">manual_periodic</field>
+    </record>
+
+    <!-- Damaged packs and rejects: scrapped, not a routine by-product. Packing
+         has no by-product, so By-Products can stay switched off. -->
+    <record id="categ_byproduct_waste" model="product.category">
+        <field name="name">Waste</field>
+        <field name="parent_id" ref="product.product_category_all"/>
+        <field name="property_cost_method">average</field>
+        <field name="property_valuation">manual_periodic</field>
+    </record>
+
+</odoo>

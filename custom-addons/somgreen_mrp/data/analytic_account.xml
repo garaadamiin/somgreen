@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!--
+        Adds Production to the Cost Centre plan created by somgreen_config.
+
+        This is what turns "we packed 4,000 cartons" into "we packed 4,000
+        cartons at this conversion cost". Packing cost can then be read
+        separately from the cost of selling and the cost of administering - and
+        separately from the trading operation, which carries no conversion cost
+        at all.
+
+        CREATING THIS ACCOUNT ROUTES NOTHING TO IT. Work-center time does not
+        post here by virtue of the account existing. mrp_account's
+        _create_or_update_analytic_entry_for_record creates analytic lines only
+        when the work center carries an analytic_distribution:
+
+            if self.workcenter_id.analytic_distribution or ...
+
+        So the Packing Line's Analytic Distribution must be pointed at this
+        account in the UI, or it stays empty forever. That field cannot be set
+        from a data file - it is JSON keyed by analytic account database id. See
+        the note in mrp_workcenter.xml.
+
+        Analytic is the SECOND line of defence, not the first. The factory cost
+        split that the P&L depends on lives in the general ledger, in accounts
+        503100-503900, because somgreen_account_reports groups its lines by
+        account_type and never by analytic. Use this plan for the long tail of
+        departmental spend, not for the recurring factory costs.
+    -->
+
+    <record id="analytic_production" model="account.analytic.account">
+        <field name="name">Production</field>
+        <field name="plan_id" ref="somgreen_config.analytic_plan_cost_centre"/>
+    </record>
+
+</odoo>

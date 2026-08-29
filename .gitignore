@@ -1,0 +1,34 @@
+# Environment variables with sensitive data
+.env
+
+# Odoo data directories
+odoo-web-data/
+postgres-data/
+config/odoo.conf
+!config/odoo.conf.example
+
+# Database backups
+*.sql
+*.dump
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/

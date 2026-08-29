@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!--
+        Selling price tiers.
+
+        A reseller's whole business is the gap between the buy price and the sell
+        price, and that gap is different for a wholesaler taking a pallet than
+        for a shop taking a carton. Odoo models that with pricelists, one per
+        tier, assigned on the customer record so the correct price follows the
+        CUSTOMER rather than depending on a salesperson remembering.
+
+        These are deliberately EMPTY SHELLS - no price rules. The rules are
+        commercial decisions, not configuration, and they change far more often
+        than this module does. Add them in Sales > Products > Pricelists once the
+        real buy prices are known: typically a percentage off the sale price, or
+        a formula on cost with a minimum margin.
+
+        DO NOT set a rule based on cost until the first receipt AND its landed
+        costs are posted. Cost is 0.00 on a freshly imported product, so a
+        margin-on-cost rule would price everything at zero and the sales team
+        would find out before you did.
+
+        THE "PRICELISTS" SETTING MUST BE ON, AND IT IS NOT OPTIONAL HERE.
+        Sales > Settings > Pricing > Pricelists. Leaving it off does not merely
+        hide the menu and leave these records dormant - res_config_settings
+        .set_values() in the `product` module runs
+
+            elif not self.group_product_pricelist:
+                self.env['product.pricelist'].sudo().search([]).action_archive()
+
+        on EVERY save of the Settings page. The domain is search([]), so saving
+        Settings even once while the box is unchecked archives all three of
+        these, whether or not anyone touched the pricelist toggle. Odoo warns
+        with "You are deactivating the pricelist feature. Every active pricelist
+        will be archived." - that warning is literal, and it fires because these
+        records exist.
+
+        Currency is left unset so each pricelist takes the company currency; set
+        it explicitly only on a pricelist that genuinely quotes in another
+        currency.
+    -->
+
+    <record id="pricelist_wholesale" model="product.pricelist">
+        <field name="name">Wholesale</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="pricelist_retail" model="product.pricelist">
+        <field name="name">Retail</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <!-- Export customers. Pair this with the Export - Zero Rated fiscal position
+         on the customer record: the pricelist sets the price, the fiscal position
+         sets the tax. Neither does the other's job. -->
+    <record id="pricelist_export" model="product.pricelist">
+        <field name="name">Export</field>
+        <field name="sequence">30</field>
+    </record>
+
+</odoo>

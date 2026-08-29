@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_somgreen_account_report_line_readonly,somgreen.account.report.line.readonly,model_somgreen_account_report_line,account.group_account_readonly,1,0,0,0
+access_somgreen_account_report_line_user,somgreen.account.report.line.user,model_somgreen_account_report_line,account.group_account_user,1,0,0,0
+access_somgreen_account_report_line_manager,somgreen.account.report.line.manager,model_somgreen_account_report_line,account.group_account_manager,1,1,1,1
+access_somgreen_balance_sheet_wizard_readonly,somgreen.balance.sheet.wizard.readonly,model_somgreen_balance_sheet_wizard,account.group_account_readonly,1,1,1,1
+access_somgreen_balance_sheet_wizard_user,somgreen.balance.sheet.wizard.user,model_somgreen_balance_sheet_wizard,account.group_account_user,1,1,1,1
+access_somgreen_profit_loss_wizard_readonly,somgreen.profit.loss.wizard.readonly,model_somgreen_profit_loss_wizard,account.group_account_readonly,1,1,1,1
+access_somgreen_profit_loss_wizard_user,somgreen.profit.loss.wizard.user,model_somgreen_profit_loss_wizard,account.group_account_user,1,1,1,1

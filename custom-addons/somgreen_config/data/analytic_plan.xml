@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!--
+        Cost Centre analytic plan.
+
+        This is what turns "we sold 4,000 cartons" into "we sold 4,000 cartons
+        and what it cost us to sell them". Overheads and departmental spend post
+        against these, so the cost of importing can be read separately from the
+        cost of selling and the cost of administering.
+
+        noupdate="1": the accountant may rename or add accounts, and a module
+        upgrade must not undo that.
+
+        `somgreen_mrp` adds a Production account to this same plan when the
+        factory starts. Until then there is nothing to produce and the plan
+        stays at four.
+
+        Requires the "Analytic Accounting" setting to be enabled.
+    -->
+
+    <record id="analytic_plan_cost_centre" model="account.analytic.plan">
+        <field name="name">Cost Centre</field>
+    </record>
+
+    <!-- The trading operation: buying, importing, holding and reselling. -->
+    <record id="analytic_trading" model="account.analytic.account">
+        <field name="name">Trading</field>
+        <field name="plan_id" ref="analytic_plan_cost_centre"/>
+    </record>
+
+    <!-- Import freight, clearing and inbound logistics that are EXPENSED rather
+         than capitalised into product cost. Anything capitalised belongs on a
+         landed cost, not here - see landed_cost_products.xml. Demurrage is the
+         usual resident: it is a penalty, not a cost of the goods. -->
+    <record id="analytic_logistics" model="account.analytic.account">
+        <field name="name">Logistics &amp; Import</field>
+        <field name="plan_id" ref="analytic_plan_cost_centre"/>
+    </record>
+
+    <record id="analytic_sales" model="account.analytic.account">
+        <field name="name">Sales &amp; Distribution</field>
+        <field name="plan_id" ref="analytic_plan_cost_centre"/>
+    </record>
+
+    <record id="analytic_admin" model="account.analytic.account">
+        <field name="name">Administration</field>
+        <field name="plan_id" ref="analytic_plan_cost_centre"/>
+    </record>
+
+</odoo>

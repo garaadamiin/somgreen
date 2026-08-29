@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Unit of measure rounding corrections.
+
+        Odoo ships kg with a rounding precision of 0.01 (10 gram granularity).
+        Finer 0.001 (one gram) rounding is harmless and keeps small weighed
+        QUANTITIES clean - a stock move of 0.125 kg stays 0.125 kg.
+
+        Metres get the same treatment for short measured runs.
+
+        THIS DOES NOT AFFECT A PRODUCT'S `weight` OR `volume` FIELD, and so does
+        nothing on its own for a by_weight or by_volume landed-cost split. Those
+        two fields are governed by the 'Stock Weight' and 'Volume' decimal
+        precisions, not by any UoM rounding - see `decimal_precision.xml`, which
+        is where that particular problem is actually solved.
+
+        The Roll (100 m) purchase unit lives in `somgreen_mrp`: it exists only
+        for carton-sealing tape, which is a packing material, not something the
+        trading business buys.
+    -->
+
+    <record id="uom.product_uom_kgm" model="uom.uom">
+        <field name="rounding" eval="0.001"/>
+    </record>
+
+    <record id="uom.product_uom_meter" model="uom.uom">
+        <field name="rounding" eval="0.001"/>
+    </record>
+
+</odoo>

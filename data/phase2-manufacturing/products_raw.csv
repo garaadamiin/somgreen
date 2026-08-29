@@ -1,0 +1,6 @@
+id,name,default_code,type,is_storable,categ_id/id,uom_id/id,uom_po_id/id,tracking,weight,volume,purchase_ok,sale_ok,standard_price
+somgreen.prod_rm_tis_001,Toilet Tissue Pack 2-ply 200s - 10 rolls,RM-TIS-001,consu,1,somgreen_mrp.categ_raw,uom.product_uom_unit,uom.product_uom_unit,none,0.73,0.030,1,0,0.00
+somgreen.prod_rm_tis_002,Toilet Tissue Pack 2-ply 300s - 10 rolls,RM-TIS-002,consu,1,somgreen_mrp.categ_raw,uom.product_uom_unit,uom.product_uom_unit,none,1.10,0.038,1,0,0.00
+somgreen.prod_rm_tis_003,Facial Tissue Box 2-ply 150s,RM-TIS-003,consu,1,somgreen_mrp.categ_raw,uom.product_uom_unit,uom.product_uom_unit,none,0.19,0.0025,1,0,0.00
+somgreen.prod_rm_tis_004,Kitchen Towel Pack 2-ply - 2 rolls,RM-TIS-004,consu,1,somgreen_mrp.categ_raw,uom.product_uom_unit,uom.product_uom_unit,none,0.60,0.012,1,0,0.00
+somgreen.prod_rm_tis_005,Napkin Pack 1-ply 100s,RM-TIS-005,consu,1,somgreen_mrp.categ_raw,uom.product_uom_unit,uom.product_uom_unit,none,0.11,0.0015,1,0,0.00

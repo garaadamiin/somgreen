@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Decimal precision for the two fields a landed-cost split is calculated
+        from.
+
+        `product.template.volume` uses digits='Volume' and
+        `product.template.weight` uses digits='Stock Weight'
+        (product/models/product_template.py:107-112). Odoo ships both at 2.
+
+        THIS IS NOT THE SAME KNOB AS THE UoM ROUNDING IN `uom_data.xml`. A UoM's
+        `rounding` governs quantities expressed in that unit; these govern the
+        weight and volume fields on the product form. Setting kg rounding to
+        0.001 does nothing for a product's `weight` - only this does.
+
+        Odoo's default of 2 is far too coarse for the products this company
+        imports. A carton of diapers is 0.100-0.125 m3, so at 2 digits the six
+        sizes in `data/phase1-trading/products_traded.csv` collapse:
+
+            0.100 0.105 0.110 0.115 0.120 0.125   <- as written
+            0.10  0.11  0.11  0.12  0.12  0.13    <- as stored at 2 digits
+
+        Sizes that should be distinct become equal, and a `by_volume` freight
+        split stops distinguishing between them.
+
+        VOLUME NEEDS 4, NOT 3, BECAUSE THE STOCK UNIT IS A PACK. The hygiene
+        products are stocked by the pack, with the carton carried as a
+        `product.packaging` - so the volume field holds a PACK's volume, which
+        is one to two orders of magnitude smaller than a carton's:
+
+            diaper pack  0.115 / 12 = 0.009583 m3   3dp -> 0.010   +4.35%
+            wipes  pack  0.055 / 24 = 0.002292 m3   3dp -> 0.002   -12.73%
+
+        Three digits leaves only one or two significant figures at that scale.
+        Diapers come out overstated and wipes understated, a 17-point relative
+        shift between two families that ship in the same container - the exact
+        failure this file exists to prevent, one decimal further down. At 4
+        digits both land inside 0.4%.
+
+        Weight stays at 3. A pack weighs 0.5-1.5 kg, so 3 digits is gram
+        precision and already far finer than any scale in the warehouse.
+
+        The failure this prevents is the one described at length in
+        `data/README.md`: a product whose volume rounds toward zero receives
+        none of a by_volume allocation and every other product in the container
+        absorbs its freight. The totals still balance, which is what makes it
+        hard to catch.
+
+        WHY <function> AND NOT <record>. Both records are created by the
+        `product` module inside a noupdate block, so their ir_model_data rows
+        carry noupdate=True. A <record id="product.decimal_volume"> here is
+        silently SKIPPED on every upgrade - `models._load_records` ends with
+        `if not (update and d_noupdate)`, and on a module upgrade both are true.
+        Setting noupdate="0" on this file does not help either: that only
+        clears the first of two checks (tools/convert.py:341-343 says so). A
+        <function> is not subject to that check at all, and re-asserts the
+        value on every upgrade, which is what we want - nobody edits these two
+        by hand the way the accountant edits category accounts.
+    -->
+
+    <function model="decimal.precision" name="write"
+              eval="[
+                  [ref('product.decimal_volume')], {'digits': 4}
+              ]"/>
+
+    <function model="decimal.precision" name="write"
+              eval="[
+                  [ref('product.decimal_stock_weight')], {'digits': 3}
+              ]"/>
+
+</odoo>

@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!--
+        Account groups: the hierarchy behind the Chart of Accounts.
+
+        Odoo derives everything from CODE PREFIXES. A group declares a start and
+        an end prefix, and account.account.group_id resolves by longest match at
+        read time - it is a computed field, not stored, so creating these groups
+        files every existing account automatically. Nothing has to be migrated,
+        and an account added later lands in the right group on its own.
+
+        WHY THIS FILE IS ALLOWED HERE. The module manifest says it deliberately
+        carries nothing that references chart-of-accounts records, because Odoo 18
+        generates per-company account XML IDs dynamically. Groups are the
+        exception that proves the rule: they reference no account at all, only
+        strings of digits. Nothing here breaks if the chart is renumbered - the
+        prefixes simply stop matching, which is visible immediately.
+
+        PARENTAGE IS NOT SET HERE. account.group.parent_id is readonly and is
+        maintained by _adapt_parent_account_group() on every create and write
+        (account/models/account_account.py). Odoo works out that 105 belongs
+        under 1 from the prefixes themselves. Setting it by hand would only be
+        overwritten.
+
+        TWO RULES CONSTRAIN THE VALUES BELOW:
+
+          * Start and end prefix must be the SAME LENGTH - a SQL check enforces
+            it. 109 to 149 is legal; 109 to 1499 is not.
+          * Groups OF THE SAME LENGTH may not overlap. The one-character groups
+            are distinct, and the three-character ranges below are sequential and
+            non-overlapping. Different lengths never conflict, which is exactly
+            what makes the two levels nest.
+
+        RANGES RATHER THAN SINGLE PREFIXES are used wherever Odoo's generic chart
+        left accounts behind at codes outside the SomGreen numbering - 121100
+        Products to receive, 151000 Fixed Asset, 211100 Bills to receive, and so
+        on. Sweeping a whole span means every account has a home and none appear
+        loose at the root. The group names are written to be honest about that:
+        Other Current Assets really is a catch-all, and saying so is better than
+        a precise-sounding name that quietly hides three unrelated accounts.
+
+        PHASE 2 PREFIXES ARE INCLUDED (105 inventory, 503 factory conversion
+        cost). A group whose prefix matches no account simply does not appear, so
+        carrying them here costs nothing and keeps the tree in one place rather
+        than split across two modules.
+
+        noupdate="1": the accountant may rename or re-range these, and an upgrade
+        must not undo that. Same reasoning as the rest of this directory.
+    -->
+
+    <!-- ===================================================== LEVEL 1: CLASS -->
+
+    <record id="group_assets" model="account.group">
+        <field name="name">ASSETS</field>
+        <field name="code_prefix_start">1</field>
+        <field name="code_prefix_end">1</field>
+    </record>
+
+    <record id="group_liabilities" model="account.group">
+        <field name="name">LIABILITIES</field>
+        <field name="code_prefix_start">2</field>
+        <field name="code_prefix_end">2</field>
+    </record>
+
+    <record id="group_equity" model="account.group">
+        <field name="name">EQUITY</field>
+        <field name="code_prefix_start">3</field>
+        <field name="code_prefix_end">3</field>
+    </record>
+
+    <record id="group_income" model="account.group">
+        <field name="name">INCOME</field>
+        <field name="code_prefix_start">4</field>
+        <field name="code_prefix_end">4</field>
+    </record>
+
+    <record id="group_cost_of_sales" model="account.group">
+        <field name="name">COST OF SALES</field>
+        <field name="code_prefix_start">5</field>
+        <field name="code_prefix_end">5</field>
+    </record>
+
+    <record id="group_operating_expenses" model="account.group">
+        <field name="name">OPERATING EXPENSES</field>
+        <field name="code_prefix_start">6</field>
+        <field name="code_prefix_end">6</field>
+    </record>
+
+    <!-- Holds two very different things, which is why the name is broad: Odoo's
+         year-end account 999999 Undistributed Profits/Losses, which must stay,
+         and the 96xxxx generic leftovers. Both are split into their own level-2
+         groups below, so nothing actually sits loose here. -->
+    <record id="group_unallocated" model="account.group">
+        <field name="name">UNALLOCATED</field>
+        <field name="code_prefix_start">9</field>
+        <field name="code_prefix_end">9</field>
+    </record>
+
+    <!-- ==================================================== LEVEL 2: ASSETS -->
+
+    <!-- Includes Odoo's payment plumbing: Bank Suspense, Outstanding Receipts
+         and Payments, Liquidity Transfer. They belong with cash and bank. -->
+    <record id="group_cash_bank" model="account.group">
+        <field name="name">Cash, Bank and Mobile Money</field>
+        <field name="code_prefix_start">101</field>
+        <field name="code_prefix_end">102</field>
+    </record>
+
+    <record id="group_receivables" model="account.group">
+        <field name="name">Receivables, Advances and Goods in Transit</field>
+        <field name="code_prefix_start">103</field>
+        <field name="code_prefix_end">104</field>
+    </record>
+
+    <!-- Trading stock, manufacturing stock, WIP and the interim accounts that
+         automated valuation posts through. The whole inventory story in one
+         group, which is the point of keeping 105 and 106 adjacent. -->
+    <record id="group_inventory" model="account.group">
+        <field name="name">Inventory and Stock Interim</field>
+        <field name="code_prefix_start">105</field>
+        <field name="code_prefix_end">106</field>
+    </record>
+
+    <record id="group_prepayments" model="account.group">
+        <field name="name">Prepayments</field>
+        <field name="code_prefix_start">107</field>
+        <field name="code_prefix_end">107</field>
+    </record>
+
+    <record id="group_ppe" model="account.group">
+        <field name="name">Property, Plant and Equipment</field>
+        <field name="code_prefix_start">108</field>
+        <field name="code_prefix_end">108</field>
+    </record>
+
+    <!-- Catch-all: 109100 Recoverable Taxes, plus the generic 121100 Products to
+         receive and 131000 Tax Paid that Odoo's plumbing still needs. -->
+    <record id="group_other_current_assets" model="account.group">
+        <field name="name">Other Current Assets and Recoverable Tax</field>
+        <field name="code_prefix_start">109</field>
+        <field name="code_prefix_end">149</field>
+    </record>
+
+    <record id="group_non_current_assets" model="account.group">
+        <field name="name">Non-current Assets</field>
+        <field name="code_prefix_start">150</field>
+        <field name="code_prefix_end">199</field>
+    </record>
+
+    <!-- =============================================== LEVEL 2: LIABILITIES -->
+
+    <record id="group_payables" model="account.group">
+        <field name="name">Payables and Customer Advances</field>
+        <field name="code_prefix_start">201</field>
+        <field name="code_prefix_end">202</field>
+    </record>
+
+    <record id="group_accruals" model="account.group">
+        <field name="name">Accruals and Payroll Liabilities</field>
+        <field name="code_prefix_start">203</field>
+        <field name="code_prefix_end">203</field>
+    </record>
+
+    <record id="group_taxes_payable" model="account.group">
+        <field name="name">Taxes and Duty Payable</field>
+        <field name="code_prefix_start">204</field>
+        <field name="code_prefix_end">205</field>
+    </record>
+
+    <record id="group_loans" model="account.group">
+        <field name="name">Loans and Borrowings</field>
+        <field name="code_prefix_start">206</field>
+        <field name="code_prefix_end">206</field>
+    </record>
+
+    <!-- Generic leftovers that Odoo uses: 211100 Bills to receive, 212000
+         Deferred Revenue, 230100/230200 payroll taxes. -->
+    <record id="group_other_current_liabilities" model="account.group">
+        <field name="name">Other Current Liabilities</field>
+        <field name="code_prefix_start">207</field>
+        <field name="code_prefix_end">249</field>
+    </record>
+
+    <!-- 251000 Tax Received, which tax repartition lines point at. -->
+    <record id="group_tax_control" model="account.group">
+        <field name="name">Tax Control Accounts</field>
+        <field name="code_prefix_start">250</field>
+        <field name="code_prefix_end">289</field>
+    </record>
+
+    <record id="group_non_current_liabilities" model="account.group">
+        <field name="name">Non-current Liabilities</field>
+        <field name="code_prefix_start">290</field>
+        <field name="code_prefix_end">299</field>
+    </record>
+
+    <!-- ==================================================== LEVEL 2: EQUITY -->
+
+    <record id="group_owner_capital" model="account.group">
+        <field name="name">Owner Capital and Drawings</field>
+        <field name="code_prefix_start">301</field>
+        <field name="code_prefix_end">301</field>
+    </record>
+
+    <record id="group_retained_earnings" model="account.group">
+        <field name="name">Retained Earnings and Distributions</field>
+        <field name="code_prefix_start">302</field>
+        <field name="code_prefix_end">399</field>
+    </record>
+
+    <!-- ==================================================== LEVEL 2: INCOME -->
+
+    <!-- 401100 Merchandise and 401200 Manufactured Goods sit together here, so
+         the two revenue streams read as one group and two lines - which is the
+         whole reason the chart keeps the codes apart. -->
+    <record id="group_sales" model="account.group">
+        <field name="name">Sales</field>
+        <field name="code_prefix_start">401</field>
+        <field name="code_prefix_end">401</field>
+    </record>
+
+    <record id="group_sales_adjustments" model="account.group">
+        <field name="name">Sales Returns and Discounts</field>
+        <field name="code_prefix_start">402</field>
+        <field name="code_prefix_end">408</field>
+    </record>
+
+    <record id="group_other_income" model="account.group">
+        <field name="name">Other and Financial Income</field>
+        <field name="code_prefix_start">409</field>
+        <field name="code_prefix_end">439</field>
+    </record>
+
+    <!-- Odoo's cash difference and cash discount pair. Note 443000 Cash Discount
+         Loss is typed as an expense despite its 4xx code - groups follow the
+         code, not the type, so it files here. That is Odoo's numbering, not a
+         mistake in this file. -->
+    <record id="group_cash_differences" model="account.group">
+        <field name="name">Cash Differences and Discounts</field>
+        <field name="code_prefix_start">440</field>
+        <field name="code_prefix_end">499</field>
+    </record>
+
+    <!-- ============================================= LEVEL 2: COST OF SALES -->
+
+    <record id="group_cogs" model="account.group">
+        <field name="name">Cost of Goods Sold</field>
+        <field name="code_prefix_start">501</field>
+        <field name="code_prefix_end">501</field>
+    </record>
+
+    <record id="group_import_costs" model="account.group">
+        <field name="name">Import and Landed Costs</field>
+        <field name="code_prefix_start">502</field>
+        <field name="code_prefix_end">502</field>
+    </record>
+
+    <!-- Phase 2. What the factory actually cost (503100-503400) and what the
+         work-center rate absorbed into the cartons (503900, a credit). The net
+         of this group IS the under/over-absorption variance, which is why the
+         five codes are kept together in one prefix. -->
+    <record id="group_factory_conversion" model="account.group">
+        <field name="name">Factory Conversion Cost</field>
+        <field name="code_prefix_start">503</field>
+        <field name="code_prefix_end">503</field>
+    </record>
+
+    <record id="group_inventory_adjustments" model="account.group">
+        <field name="name">Inventory Adjustments and Variances</field>
+        <field name="code_prefix_start">504</field>
+        <field name="code_prefix_end">599</field>
+    </record>
+
+    <!-- ======================================== LEVEL 2: OPERATING EXPENSES -->
+
+    <record id="group_payroll" model="account.group">
+        <field name="name">Payroll</field>
+        <field name="code_prefix_start">601</field>
+        <field name="code_prefix_end">601</field>
+    </record>
+
+    <record id="group_premises" model="account.group">
+        <field name="name">Premises and Utilities</field>
+        <field name="code_prefix_start">602</field>
+        <field name="code_prefix_end">602</field>
+    </record>
+
+    <record id="group_distribution" model="account.group">
+        <field name="name">Distribution and Vehicles</field>
+        <field name="code_prefix_start">603</field>
+        <field name="code_prefix_end">603</field>
+    </record>
+
+    <record id="group_communications" model="account.group">
+        <field name="name">Communications and Maintenance</field>
+        <field name="code_prefix_start">604</field>
+        <field name="code_prefix_end">604</field>
+    </record>
+
+    <record id="group_financial_professional" model="account.group">
+        <field name="name">Financial and Professional</field>
+        <field name="code_prefix_start">605</field>
+        <field name="code_prefix_end">605</field>
+    </record>
+
+    <record id="group_marketing_insurance" model="account.group">
+        <field name="name">Marketing and Insurance</field>
+        <field name="code_prefix_start">606</field>
+        <field name="code_prefix_end">606</field>
+    </record>
+
+    <record id="group_depreciation" model="account.group">
+        <field name="name">Depreciation</field>
+        <field name="code_prefix_start">607</field>
+        <field name="code_prefix_end">607</field>
+    </record>
+
+    <record id="group_bad_debts" model="account.group">
+        <field name="name">Bad Debts</field>
+        <field name="code_prefix_start">608</field>
+        <field name="code_prefix_end">608</field>
+    </record>
+
+    <record id="group_fx_misc" model="account.group">
+        <field name="name">Foreign Exchange and Miscellaneous</field>
+        <field name="code_prefix_start">609</field>
+        <field name="code_prefix_end">609</field>
+    </record>
+
+    <record id="group_other_operating" model="account.group">
+        <field name="name">Other Operating Expenses</field>
+        <field name="code_prefix_start">610</field>
+        <field name="code_prefix_end">699</field>
+    </record>
+
+    <!-- =============================================== LEVEL 2: UNALLOCATED -->
+
+    <!-- 961000 RD Expenses and 962000 Sales Expenses are generic-chart leftovers
+         with no role here. Naming the group for what they are keeps them visible
+         in the Chart of Accounts rather than loose under UNALLOCATED, so the
+         decision to delete them can be taken deliberately later. -->
+    <record id="group_unused_generic" model="account.group">
+        <field name="name">Unused Generic Accounts</field>
+        <field name="code_prefix_start">960</field>
+        <field name="code_prefix_end">998</field>
+    </record>
+
+    <record id="group_undistributed" model="account.group">
+        <field name="name">Undistributed Profits and Losses</field>
+        <field name="code_prefix_start">999</field>
+        <field name="code_prefix_end">999</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,54 @@
+id,code,name,account_type,reconcile
+somgreen.acc_cash_hand,101100,Cash on Hand,asset_cash,0
+somgreen.acc_bank_usd,101200,Bank - Current Account (USD),asset_cash,0
+somgreen.acc_mobile_money,101300,Mobile Money - EVC Plus / eDahab,asset_cash,0
+somgreen.acc_receivable,103100,Accounts Receivable,asset_receivable,1
+somgreen.acc_advances_suppliers,103200,Advances to Suppliers,asset_current,1
+somgreen.acc_import_deposits,103300,Import Deposits and Letters of Credit,asset_current,1
+somgreen.acc_goods_in_transit,104100,Goods in Transit,asset_current,1
+somgreen.acc_inv_merchandise,105100,Merchandise Inventory,asset_current,0
+somgreen.acc_inv_spares,105500,Spare Parts Inventory,asset_current,0
+somgreen.acc_stock_interim_in,106100,Stock Interim - Received,asset_current,1
+somgreen.acc_stock_interim_out,106200,Stock Interim - Delivered,asset_current,1
+somgreen.acc_prepaid,107100,Prepaid Expenses,asset_prepayments,0
+somgreen.acc_ppe,108100,Property Plant and Equipment,asset_fixed,0
+somgreen.acc_accum_depreciation,108200,Accumulated Depreciation,asset_fixed,0
+somgreen.acc_tax_recoverable,109100,Recoverable Taxes,asset_current,0
+somgreen.acc_payable,201100,Accounts Payable,liability_payable,1
+somgreen.acc_customer_advances,202100,Customer Advances and Deposits,liability_current,1
+somgreen.acc_accrued_expenses,203100,Accrued Expenses,liability_current,0
+somgreen.acc_salaries_payable,203200,Salaries and Wages Payable,liability_current,0
+somgreen.acc_taxes_payable,204100,Taxes Payable,liability_current,0
+somgreen.acc_duty_payable,205100,Customs Duty Payable,liability_current,0
+somgreen.acc_loans,206100,Loans and Borrowings,liability_non_current,0
+somgreen.acc_owner_capital,301100,Owner Capital,equity,0
+somgreen.acc_owner_drawings,301200,Owner Drawings,equity,0
+somgreen.acc_retained_earnings,302100,Retained Earnings,equity,0
+somgreen.acc_sales_merchandise,401100,Sales - Merchandise,income,0
+somgreen.acc_sales_returns,402100,Sales Returns and Allowances,income,0
+somgreen.acc_sales_discounts,402200,Sales Discounts Given,income,0
+somgreen.acc_other_income,409100,Other Income,income_other,0
+somgreen.acc_fx_gain,409200,Foreign Exchange Gain,income_other,0
+somgreen.acc_cogs_merchandise,501100,COGS - Merchandise,expense_direct_cost,0
+somgreen.acc_customs_clearing,502100,Customs Duty and Clearing,expense_direct_cost,0
+somgreen.acc_freight_inward,502200,Freight and Handling - Inward,expense_direct_cost,0
+somgreen.acc_inventory_adjustment,504100,Inventory Adjustment and Scrap,expense_direct_cost,0
+somgreen.acc_price_difference,504200,Purchase Price Difference,expense_direct_cost,0
+somgreen.acc_salaries,601100,Salaries and Wages,expense,0
+somgreen.acc_staff_benefits,601200,Staff Benefits and Allowances,expense,0
+somgreen.acc_rent,602100,Rent - Warehouse and Office,expense,0
+somgreen.acc_utilities,602200,Utilities - Electricity and Water,expense,0
+somgreen.acc_fuel_generator,602300,Fuel and Generator,expense,0
+somgreen.acc_outbound_transport,603100,Outbound Transport and Delivery,expense,0
+somgreen.acc_vehicle_costs,603200,Vehicle Running Costs,expense,0
+somgreen.acc_telephone_internet,604100,Telephone and Internet,expense,0
+somgreen.acc_repairs,604200,Repairs and Maintenance,expense,0
+somgreen.acc_bank_charges,605100,Bank Charges,expense,0
+somgreen.acc_professional_fees,605200,Professional and Audit Fees,expense,0
+somgreen.acc_licences,605300,Licences Permits and Government Fees,expense,0
+somgreen.acc_marketing,606100,Marketing and Advertising,expense,0
+somgreen.acc_insurance,606200,Insurance,expense,0
+somgreen.acc_depreciation,607100,Depreciation,expense_depreciation,0
+somgreen.acc_bad_debts,608100,Bad Debt Expense,expense,0
+somgreen.acc_fx_loss,609100,Foreign Exchange Loss,expense,0
+somgreen.acc_misc_expense,609900,Miscellaneous Expense,expense,0

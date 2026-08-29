@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Three templates.
+
+        report_layout reproduces the page furniture of the reference document:
+        the print timestamp top-left and "page / total" top-right, and nothing
+        else. That is web.internal_layout (web/views/report_templates.xml) minus
+        its centred company name, which in this layout belongs in the body under
+        the logo. It is copied rather than inherited so a change in `web` cannot
+        silently reshape an accounting statement.
+
+        report_financial_document is the statement body - company block, title,
+        basis line and the Name / Balance table. Both statements render through
+        it, so the Balance Sheet and the Profit and Loss cannot drift apart
+        visually.
+
+        report_balance_sheet and report_profit_and_loss are the two entry points
+        named by the ir.actions.report records. They carry no markup of their
+        own; the engine has already put the title and the rows in the context.
+    -->
+
+    <template id="report_layout">
+        <div class="header">
+            <div class="row">
+                <div class="col-6">
+                    <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%Y-%m-%d %H:%M')"/>
+                </div>
+                <div class="col-6 text-end">
+                    <span class="page"/> / <span class="topage"/>
+                </div>
+            </div>
+        </div>
+        <div class="article">
+            <t t-out="0"/>
+        </div>
+    </template>
+
+    <template id="report_financial_document">
+        <style type="text/css">
+            .sg-report            { font-size: 10px; }
+            .sg-company           { margin-bottom: 18px; }
+            .sg-company-name      { font-size: 13px; font-weight: bold; }
+            .sg-logo              { max-height: 45px; max-width: 200px; margin-bottom: 8px; }
+            .sg-title             { font-size: 17px; font-weight: bold; margin-bottom: 2px; }
+            .sg-subtitle          { font-size: 10px; color: #666666; margin-bottom: 10px; }
+            .sg-table             { width: 100%; border-collapse: collapse; }
+            .sg-table thead th    { border-bottom: 1px solid #000000; padding: 4px 6px; font-weight: bold; }
+            .sg-table td          { padding: 3px 6px; }
+            .sg-amount            { text-align: right; white-space: nowrap; }
+            .sg-section           { font-weight: bold; background-color: #f4f4f4; }
+            .sg-subsection        { font-weight: bold; }
+            .sg-regular           { font-weight: normal; }
+        </style>
+
+        <div class="page sg-report">
+
+            <!-- Company block: logo, name, country, tax identifier. -->
+            <div class="sg-company">
+                <div t-if="company.logo">
+                    <img class="sg-logo" t-att-src="image_data_uri(company.logo)" alt="Logo"/>
+                </div>
+                <div class="sg-company-name" t-out="company.name"/>
+                <div t-if="company.country_id" t-out="company.country_id.name"/>
+                <div>
+                    <span t-out="company.country_id.vat_label or 'TIN'"/>: <span t-out="company.vat or ''"/>
+                </div>
+            </div>
+
+            <div class="sg-title" t-out="report_title"/>
+            <!--
+                Not in the reference document, kept on purpose: a financial
+                statement without a period and a stated basis is not a usable
+                accounting record. A Balance Sheet carries no date_from and reads
+                "As of"; a Profit and Loss carries one and reads as a range.
+            -->
+            <div class="sg-subtitle">
+                <t t-if="date_from">
+                    <span t-out="date_from" t-options="{'widget': 'date'}"/>
+                    to
+                    <span t-out="date_to" t-options="{'widget': 'date'}"/>
+                </t>
+                <t t-else="">
+                    As of <span t-out="date_to" t-options="{'widget': 'date'}"/>
+                </t>
+                &#8212;
+                <span t-if="target_move == 'posted'">All Posted Entries</span>
+                <span t-else="">All Entries</span>
+            </div>
+
+            <table class="sg-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th class="sg-amount">Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="report_lines" t-as="line" t-att-class="'sg-' + line['style']">
+                        <td t-attf-style="padding-left: {{ 6 + 12 * line['level'] }}px;">
+                            <span t-out="line['name']"/>
+                        </td>
+                        <td class="sg-amount" t-out="line['value']"/>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </template>
+
+    <template id="report_balance_sheet">
+        <t t-call="web.html_container">
+            <t t-call="somgreen_account_reports.report_layout">
+                <t t-call="somgreen_account_reports.report_financial_document"/>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_profit_and_loss">
+        <t t-call="web.html_container">
+            <t t-call="somgreen_account_reports.report_layout">
+                <t t-call="somgreen_account_reports.report_financial_document"/>
+            </t>
+        </t>
+    </template>
+
+</odoo>
