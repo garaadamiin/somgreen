@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_somgreen_dashboard" model="ir.actions.client">
+        <field name="name">SomGreen Overview</field>
+        <field name="tag">somgreen_dashboard</field>
+    </record>
+
+    <menuitem id="menu_somgreen_dashboard_root"
+              name="Dashboard"
+              action="action_somgreen_dashboard"
+              sequence="1"
+              groups="account.group_account_manager"/>
+</odoo>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="somgreen_dashboard.Dashboard" owl="1">
+        <div class="o_somgreen_dashboard">
+            <div class="os_header">
+                <div class="os_header_title">
+                    <h2>SomGreen Overview</h2>
+                    <span class="os_subtitle" t-if="state.data">
+                        <t t-esc="state.data.company_name"/> · <t t-esc="state.dateFrom"/> to <t t-esc="state.dateTo"/>
+                    </span>
+                </div>
+                <div class="os_filters">
+                    <input type="date" t-model="state.dateFrom" class="os_date_input"/>
+                    <span class="os_filter_sep">–</span>
+                    <input type="date" t-model="state.dateTo" class="os_date_input"/>
+                    <button class="os_btn os_btn_primary" t-on-click="onFilterApply">Apply</button>
+                    <div class="os_quick_ranges">
+                        <button class="os_btn os_btn_ghost" t-on-click="() => this.setQuickRange('30d')">30D</button>
+                        <button class="os_btn os_btn_ghost" t-on-click="() => this.setQuickRange('90d')">90D</button>
+                        <button class="os_btn os_btn_ghost" t-on-click="() => this.setQuickRange('year')">This Year</button>
+                    </div>
+                </div>
+            </div>
+
+            <div t-if="state.loading" class="os_loading">Loading dashboard…</div>
+
+            <div t-else="" class="os_body">
+                <div class="os_kpi_grid">
+                    <div class="os_kpi_card" t-foreach="state.data.kpis" t-as="kpi" t-key="kpi.key">
+                        <div class="os_kpi_label"><t t-esc="kpi.label"/></div>
+                        <div class="os_kpi_value"><t t-esc="kpi.formatted"/></div>
+                    </div>
+                </div>
+
+                <div class="os_panels">
+                    <div class="os_panel os_chart_panel">
+                        <h3>Monthly Sales — <t t-esc="currentYear"/></h3>
+                        <div class="os_chart_wrap">
+                            <canvas t-ref="salesChart"/>
+                        </div>
+                    </div>
+
+                    <div class="os_panel os_table_panel">
+                        <h3>Top 5 Products by Sales</h3>
+                        <table class="os_table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th class="os_num">Sales Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="state.data.top_products" t-as="product" t-key="product_index">
+                                    <td><t t-esc="product.name"/></td>
+                                    <td class="os_num"><t t-esc="product.formatted"/></td>
+                                </tr>
+                                <tr t-if="!state.data.top_products.length">
+                                    <td colspan="2" class="os_empty">No product sales in this period.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>
